@@ -46,31 +46,8 @@ function fileLink(file, envName) {
 
   const envFilepath = path.resolve(file)
 
-  if (!fs.existsSync(envFilepath)) {
-    console.error('ERROR:', file, 'does not exist')
-    return
-  }
-
-  const buf = fs.readFileSync(envFilepath)
-  try {
-    const fields = dotenv.parse(buf)
-    const options = {
-      url: `${API_URL}/push?token=${API_TOKEN}`,
-      json: true,
-      body: { envName, fields }
-    }
-
-    request.post(options, function(err, response, body) {
-      if (err) {
-        console.error('ERROR: could not sync the env file.', err.message)
-      } else {
-        // write the location of the env file based on the env name
-        fs.writeFileSync(tmpName, envFilepath)
-      }
-    })
-  } catch (er) {
-    console.error('ERROR: invalid format in file', file, er.message)
-  }
+  // write the location of the env file based on the env name
+  fs.writeFileSync(tmpName, envFilepath)
 }
 
 
@@ -127,6 +104,11 @@ function filePull(envName) {
   request.get(options, function(err, response, body) {
     if (err) {
       console.error('ERROR: could not retrieve the env file from remote:', err.message)
+      return
+    }
+
+    if (body.status === 'failure') {
+      console.error('ERROR: could not retrieve the env file from remote:', body.reason)
       return
     }
 
