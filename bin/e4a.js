@@ -23,6 +23,8 @@ dotenv.config({ path: __dirname + '/../.env' })
 const API_URL = process.env.API_URL || 'https://e4a.reinstein.me'
 const argv = minimist(process.argv.slice(2))
 
+const API_TOKEN = process.env.API_TOKEN
+
 const subcommand = argv._[0]
 
 // ensure the config environment is set up
@@ -53,7 +55,7 @@ function fileLink(file, envName) {
   try {
     const fields = dotenv.parse(buf)
     const options = {
-      url: `${API_URL}/push?token=something123`,
+      url: `${API_URL}/push?token=${API_TOKEN}`,
       json: true,
       body: { envName, fields }
     }
@@ -95,7 +97,7 @@ function filePush(envName) {
   }
 
   const options = {
-    url: `${API_URL}/push?token=something123`,
+    url: `${API_URL}/push?token=${API_TOKEN}`,
     json: true,
     body: { envName, fields }
   }
@@ -117,7 +119,7 @@ function filePull(envName) {
   const envFilepath = fs.readFileSync(tmpName, 'utf8')
 
   const options = {
-    url: `${API_URL}/pull?token=something123`,
+    url: `${API_URL}/pull?token=${API_TOKEN}`,
     json: true,
     body: { envName }
   }
