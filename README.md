@@ -2,6 +2,15 @@
 
 keep .env files synced from the command line
 
+## installation
+
+run this, replacing `<secret>` with your actual secret token:
+
+```bash
+npm i mreinstein/e4a -g
+echo "API_TOKEN=<secret>" | sudo tee /usr/local/lib/node_modules/e4a/.env
+```
+
 
 ## cli
 
