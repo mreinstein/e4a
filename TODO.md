@@ -1,7 +1,11 @@
-* groups
 * user authentication
+* command line help
+* groups
+* only push files that have changed since last push (deltas)
+* ability to remove env files
 * lockable fields
 * `push` and `pull` commands should work with either file or `envName` as input
+* support multiple names in `push` and `pull` commands
 
 
 ## cli
