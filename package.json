@@ -1,22 +1,27 @@
 {
-  "name": "e4a",
+  "name": "envry",
   "version": "0.0.1",
   "private": true,
   "description": "keep .env files synced from the command line",
-  "bin": "./bin/e4a.js",
+  "bin": "./bin/envry.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Mike Reinstein",
   "license": "MIT",
   "dependencies": {
+    "chalk": "^1.1.3",
     "dotenv": "^4.0.0",
+    "email-prompt": "^0.2.0",
+    "email-validator": "^1.0.7",
     "minimist": "^1.2.0",
     "node-version": "^1.0.0",
     "ora": "^1.1.0",
-    "request": "^2.79.0"
+    "querystring": "^0.2.0",
+    "request": "^2.79.0",
+    "request-promise": "^4.1.1"
   },
   "engines": {
-    "node": ">=6.9.0"
+    "node": ">=7.6.0"
   }
 }

@@ -2,9 +2,11 @@
 
 'use strict'
 
+const cfg         = require(__dirname + '/../lib/cfg')
 const dotenv      = require('dotenv')
 const fs          = require('fs')
 const homedir     = require('os').homedir
+const login       = require(__dirname + '/../lib/login')
 const minimist    = require('minimist')
 const nodeVersion = require('node-version')
 const path        = require('path')
@@ -13,36 +15,34 @@ const resolve     = require('path').resolve
 
 
 // throw an error if node version is too low
-if (nodeVersion.major < 6) {
-  error('e4a requires at least version 6 of Node. Please upgrade!')
+if (nodeVersion.major < 7) {
+  error('envry requires at least version 7 of Node. Please upgrade!')
   process.exit(1)
 }
 
 dotenv.config({ path: __dirname + '/../.env' })
 
-const API_URL = process.env.API_URL || 'https://e4a.reinstein.me'
+const API_URL = process.env.API_URL || 'https://envry.reinstein.me'
 const argv = minimist(process.argv.slice(2))
-
-const API_TOKEN = process.env.API_TOKEN
 
 const subcommand = argv._[0]
 
 // ensure the config environment is set up
 function checkConfigDirectory() {
-  const configDir = path.resolve(homedir(), '.e4a')
+  const configDir = path.resolve(homedir(), '.envry')
   if(!fs.existsSync(configDir)) {
     fs.mkdirSync(configDir)
   }
 
-  const linksDir = path.resolve(homedir(), '.e4a', 'links')
+  const linksDir = path.resolve(homedir(), '.envry', 'links')
   if(!fs.existsSync(linksDir)) {
     fs.mkdirSync(linksDir)
   }
 }
 
-// e4a link myproject/.env myproject-dev
+// envry link myproject/.env myproject-dev
 function fileLink(file, envName) {
-  const tmpName = path.resolve(homedir(), '.e4a', 'links', envName)
+  const tmpName = path.resolve(homedir(), '.envry', 'links', envName)
 
   const envFilepath = path.resolve(file)
 
@@ -52,7 +52,7 @@ function fileLink(file, envName) {
 
 
 function filePush(envName) {
-  const tmpName = path.resolve(homedir(), '.e4a', 'links', envName)
+  const tmpName = path.resolve(homedir(), '.envry', 'links', envName)
   if (!fs.existsSync(tmpName)) {
     console.error('ERROR:', envName, 'not linked.')
     return
@@ -74,7 +74,7 @@ function filePush(envName) {
   }
 
   const options = {
-    url: `${API_URL}/push?token=${API_TOKEN}`,
+    url: `${API_URL}/push?token=${config.token}`,
     json: true,
     body: { envName, fields }
   }
@@ -87,7 +87,7 @@ function filePush(envName) {
 }
 
 function filePull(envName) {
-  const tmpName = path.resolve(homedir(), '.e4a', 'links', envName)
+  const tmpName = path.resolve(homedir(), '.envry', 'links', envName)
   if (!fs.existsSync(tmpName)) {
     console.error('ERROR:', envName, 'not linked.')
     return
@@ -96,7 +96,7 @@ function filePull(envName) {
   const envFilepath = fs.readFileSync(tmpName, 'utf8')
 
   const options = {
-    url: `${API_URL}/pull?token=${API_TOKEN}`,
+    url: `${API_URL}/pull?token=${config.token}`,
     json: true,
     body: { envName }
   }
@@ -124,10 +124,20 @@ function filePull(envName) {
 
 checkConfigDirectory()
 
-if (subcommand === 'link') {
-  fileLink(argv._[1], argv._[2])
-} else if (subcommand === 'push') {
-  filePush(argv._[1])
-} else if (subcommand === 'pull') {
-  filePull(argv._[1])
+const config = cfg.read()
+
+async function run() {
+  if (!config.token) {
+    await login(API_URL)
+  }
+
+  if (subcommand === 'link') {
+    fileLink(argv._[1], argv._[2])
+  } else if (subcommand === 'push') {
+    filePush(argv._[1])
+  } else if (subcommand === 'pull') {
+    filePull(argv._[1])
+  }
 }
+
+run()
