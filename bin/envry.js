@@ -55,13 +55,13 @@ function filePush(envName) {
   const tmpName = path.resolve(homedir(), '.envry', 'links', envName)
   if (!fs.existsSync(tmpName)) {
     console.error('ERROR:', envName, 'not linked.')
-    return
+    process.exit(1)
   }
 
   const envFilepath = fs.readFileSync(tmpName, 'utf8')
   if (!fs.existsSync(envFilepath)) {
     console.error('ERROR:', envFilepath, 'file does not exist.')
-    return
+    process.exit(1)
   }
 
   let fields
@@ -70,7 +70,7 @@ function filePush(envName) {
     fields = dotenv.parse(buf)
   } catch (er) {
     console.error('ERROR: invalid format in file', envFilepath, er.message)
-    return
+    process.exit(1)
   }
 
   const options = {
@@ -82,6 +82,7 @@ function filePush(envName) {
   request.post(options, function(err, response, body) {
     if (err) {
       console.error('ERROR: could not sync the env file.', err.message)
+      process.exit(1)
     }
   })
 }
@@ -90,7 +91,7 @@ function filePull(envName) {
   const tmpName = path.resolve(homedir(), '.envry', 'links', envName)
   if (!fs.existsSync(tmpName)) {
     console.error('ERROR:', envName, 'not linked.')
-    return
+    process.exit(1)
   }
 
   const envFilepath = fs.readFileSync(tmpName, 'utf8')
@@ -104,12 +105,12 @@ function filePull(envName) {
   request.get(options, function(err, response, body) {
     if (err) {
       console.error('ERROR: could not retrieve the env file from remote:', err.message)
-      return
+      process.exit(1)
     }
 
     if (body.status === 'failure') {
       console.error('ERROR: could not retrieve the env file from remote:', body.reason)
-      return
+      process.exit(1)
     }
 
     let out = ''

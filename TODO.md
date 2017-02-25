@@ -1,4 +1,3 @@
-* exit with non-0 status code on failures
 * groups
 * asyncify everything
 * command line help
