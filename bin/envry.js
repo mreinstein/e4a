@@ -84,6 +84,11 @@ function filePush(envName) {
       console.error('ERROR: could not sync the env file.', err.message)
       process.exit(1)
     }
+
+    if(response.statusCode >= 400) {
+      console.error('ERROR: could not sync the env file. HTTP request failed. status code:', response.statusCode)
+      process.exit(1)
+    }
   })
 }
 
@@ -105,6 +110,11 @@ function filePull(envName) {
   request.get(options, function(err, response, body) {
     if (err) {
       console.error('ERROR: could not retrieve the env file from remote:', err.message)
+      process.exit(1)
+    }
+
+    if(response.statusCode >= 400) {
+      console.error('ERROR: could not sync the env file. HTTP request failed. status code:', response.statusCode)
       process.exit(1)
     }
 
