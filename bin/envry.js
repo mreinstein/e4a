@@ -99,7 +99,7 @@ function filePull(envName) {
     process.exit(1)
   }
 
-  const envFilepath = fs.readFileSync(tmpName, 'utf8')
+  const envFilepath = fs.readFileSync(tmpName, 'utf8').trim()
 
   const options = {
     url: `${API_URL}/pull?token=${config.token}`,
