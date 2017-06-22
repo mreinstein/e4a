@@ -58,7 +58,7 @@ function filePush(envName) {
     process.exit(1)
   }
 
-  const envFilepath = fs.readFileSync(tmpName, 'utf8')
+  const envFilepath = fs.readFileSync(tmpName, 'utf8').trim()
   if (!fs.existsSync(envFilepath)) {
     console.error('ERROR:', envFilepath, 'file does not exist.')
     process.exit(1)
