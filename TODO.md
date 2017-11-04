@@ -1,5 +1,4 @@
-* cli help
-* groups
+* teams
 * ability to remove env files
 * lockable fields
 * `push` and `pull` commands should work with either file or `envName` as input

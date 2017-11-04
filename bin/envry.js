@@ -3,6 +3,7 @@
 'use strict'
 
 const cfg         = require(__dirname + '/../lib/cfg')
+const chalk       = require('chalk')
 const dotenv      = require('dotenv')
 const fs          = require('fs')
 const homedir     = require('os').homedir
@@ -24,7 +25,6 @@ dotenv.config({ path: __dirname + '/../.env' })
 
 const API_URL = process.env.API_URL || 'https://envry.reinstein.me'
 const argv = minimist(process.argv.slice(2))
-
 const subcommand = argv._[0]
 
 // ensure the config environment is set up
@@ -128,7 +128,19 @@ checkConfigDirectory()
 
 const config = cfg.read()
 
+function printGeneralUsage() {
+  console.log(chalk.whiteBright.bold('\n  envry command [options]\n'))
+  console.log(chalk.dim('  Commands:\n'))
+  console.log('    link  [filepath] [name]  link an environment file to sync')
+  console.log('    pull  [name]             pull changes into a linked env file from remote')
+  console.log('    push  [name]             push changes from a linked env file to remote')
+  console.log(' ')
+}
+
 async function run() {
+  if(argv.h || argv.help)
+    return printGeneralUsage()
+
   if (!config.token)
     await login(API_URL)
 
