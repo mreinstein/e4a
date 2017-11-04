@@ -1,11 +1,13 @@
 * teams
-* ability to remove env files
-* lockable fields
+* list available env files from server
+* locally unlink files
+* remove env files from server
 * `push` and `pull` commands should work with either file or `envName` as input
+* per-command help (e.g., `envry help link`)
+* lockable fields
 * support multiple names in `push` and `pull` commands
 * better colored syntax highlighting
 * only push files that have changed since last push (deltas)
-* look into replacing `minimist` with `mri` (smaller and lighter)
 
 
 ## lock the fields in a file so they don't change

@@ -138,7 +138,7 @@ function printGeneralUsage() {
 }
 
 async function run() {
-  if(argv.h || argv.help)
+  if(argv.h || argv.help || subcommand === 'help')
     return printGeneralUsage()
 
   if (!config.token)
