@@ -1,6 +1,5 @@
+* cli help
 * groups
-* asyncify everything
-* command line help
 * ability to remove env files
 * lockable fields
 * `push` and `pull` commands should work with either file or `envName` as input
