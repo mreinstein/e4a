@@ -1,4 +1,3 @@
-* replace request, request-promise with r2 (spiritual successor to request)
 * groups
 * asyncify everything
 * command line help

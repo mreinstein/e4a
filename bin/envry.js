@@ -10,7 +10,7 @@ const login       = require(__dirname + '/../lib/login')
 const minimist    = require('minimist')
 const nodeVersion = require('node-version')
 const path        = require('path')
-const request     = require('request')
+const r2          = require('r2')
 const resolve     = require('path').resolve
 
 
@@ -51,7 +51,7 @@ function fileLink(file, envName) {
 }
 
 
-function filePush(envName) {
+async function filePush(envName) {
   const tmpName = path.resolve(homedir(), '.envry', 'links', envName)
   if (!fs.existsSync(tmpName)) {
     console.error('ERROR:', envName, 'not linked.')
@@ -79,20 +79,19 @@ function filePush(envName) {
     body: { envName, fields }
   }
 
-  request.post(options, function(err, response, body) {
-    if (err) {
-      console.error('ERROR: could not sync the env file.', err.message)
-      process.exit(1)
-    }
+  try {
+    const response = await r2.post(`${API_URL}/push?token=${config.token}`, { json: { envName, fields } }).response
 
-    if(response.statusCode >= 400) {
-      console.error('ERROR: could not sync the env file. HTTP request failed. status code:', response.statusCode)
-      process.exit(1)
-    }
-  })
+    if(response.status >= 400)
+      throw new Error('HTTP request failed. status code:', response.status)
+
+  } catch(er) {
+    console.error('ERROR: could not sync the env file.', er.message)
+    process.exit(1)
+  }
 }
 
-function filePull(envName) {
+async function filePull(envName) {
   const tmpName = path.resolve(homedir(), '.envry', 'links', envName)
   if (!fs.existsSync(tmpName)) {
     console.error('ERROR:', envName, 'not linked.')
@@ -101,27 +100,16 @@ function filePull(envName) {
 
   const envFilepath = fs.readFileSync(tmpName, 'utf8').trim()
 
-  const options = {
-    url: `${API_URL}/pull?token=${config.token}`,
-    json: true,
-    body: { envName }
-  }
+  try {
+    const response = await r2(`${API_URL}/pull/${envName}?token=${config.token}`).response
 
-  request.get(options, function(err, response, body) {
-    if (err) {
-      console.error('ERROR: could not retrieve the env file from remote:', err.message)
-      process.exit(1)
-    }
+    if(response.status >= 400)
+      throw new Error('HTTP request failed. status code:', response.status)
 
-    if(response.statusCode >= 400) {
-      console.error('ERROR: could not sync the env file. HTTP request failed. status code:', response.statusCode)
-      process.exit(1)
-    }
+    const body = await response.json()
 
-    if (body.status === 'failure') {
-      console.error('ERROR: could not retrieve the env file from remote:', body.reason)
-      process.exit(1)
-    }
+    if (body.status === 'failure')
+      throw new Error('failed to retrieve file from remote:', body.reason)
 
     let out = ''
     const keys = Object.keys(body.fields)
@@ -130,7 +118,10 @@ function filePull(envName) {
     }
 
     fs.writeFileSync(envFilepath, out, 'utf8')
-  })
+  } catch(er) {
+    console.error('ERROR: could not retrieve the env file from remote:', er.message)
+    process.exit(1)
+  }
 }
 
 checkConfigDirectory()
@@ -138,17 +129,15 @@ checkConfigDirectory()
 const config = cfg.read()
 
 async function run() {
-  if (!config.token) {
+  if (!config.token)
     await login(API_URL)
-  }
 
-  if (subcommand === 'link') {
+  if (subcommand === 'link')
     fileLink(argv._[1], argv._[2])
-  } else if (subcommand === 'push') {
+  else if (subcommand === 'push')
     filePush(argv._[1])
-  } else if (subcommand === 'pull') {
+  else if (subcommand === 'pull')
     filePull(argv._[1])
-  }
 }
 
 run()
