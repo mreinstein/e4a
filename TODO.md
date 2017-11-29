@@ -1,4 +1,5 @@
 * teams
+* add examples section to printed help
 * list available env files from server
 * locally unlink files
 * remove env files from server
