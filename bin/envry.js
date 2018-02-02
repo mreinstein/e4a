@@ -128,6 +128,7 @@ checkConfigDirectory()
 
 const config = cfg.read()
 
+
 function printGeneralUsage() {
   console.log(chalk.whiteBright.bold('\n  envry command [options]\n'))
   console.log(chalk.dim('  Commands:\n'))
@@ -136,6 +137,7 @@ function printGeneralUsage() {
   console.log('    push  [name]             push changes from a linked env file to remote')
   console.log(' ')
 }
+
 
 async function run() {
   if(argv.h || argv.help || subcommand === 'help')

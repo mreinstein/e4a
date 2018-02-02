@@ -2,6 +2,39 @@
 
 keep .env files synced from the command line
 
+
+## data structures
+
+This is the current design which enables team support
+
+`env_files` table:
+
+```
+{
+  envName: "some name",
+  id: "3425sadf132qdsad-adsfads-sdfadsasf",
+  fields: { ... },
+  teamid: "567342sdfwesreaw-34qr3wrqe-sfasdfas"
+}
+```
+
+
+`teams` table:
+
+```
+{
+  id: "567342sdfwesreaw-34qr3wrqe-sfasdfas",
+  name: "voiceco",
+  owner: "reinstein.mike@gmail.com",
+  members: {
+    "ted.barnett@gmail.com": {
+      ...
+    }
+  }
+}
+```
+
+
 ## installation
 
 ```bash
