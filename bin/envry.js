@@ -7,38 +7,13 @@ const chalk       = require('chalk')
 const dotenv      = require('dotenv')
 const fs          = require('fs')
 const homedir     = require('os').homedir
-const login       = require(__dirname + '/../lib/login')
+const auth        = require(__dirname + '/../lib/auth')
 const minimist    = require('minimist')
 const nodeVersion = require('node-version')
 const path        = require('path')
 const r2          = require('r2')
 const resolve     = require('path').resolve
 
-
-// throw an error if node version is too low
-if (nodeVersion.major < 7) {
-  error('envry requires at least version 7 of Node. Please upgrade!')
-  process.exit(1)
-}
-
-dotenv.config({ path: __dirname + '/../.env' })
-
-const API_URL = process.env.API_URL || 'https://envry.reinstein.me'
-const argv = minimist(process.argv.slice(2))
-const subcommand = argv._[0]
-
-// ensure the config environment is set up
-function checkConfigDirectory() {
-  const configDir = path.resolve(homedir(), '.envry')
-  if(!fs.existsSync(configDir)) {
-    fs.mkdirSync(configDir)
-  }
-
-  const linksDir = path.resolve(homedir(), '.envry', 'links')
-  if(!fs.existsSync(linksDir)) {
-    fs.mkdirSync(linksDir)
-  }
-}
 
 // envry link myproject/.env myproject-dev
 function fileLink(file, envName) {
@@ -73,14 +48,8 @@ async function filePush(envName) {
     process.exit(1)
   }
 
-  const options = {
-    url: `${API_URL}/push?token=${config.token}`,
-    json: true,
-    body: { envName, fields }
-  }
-
   try {
-    const response = await r2.post(`${API_URL}/push?token=${config.token}`, { json: { envName, fields } }).response
+    const response = await r2.post(`${API_URL}/push?token=${config.token}&currentTeam=${config.currentTeam}`, { json: { envName, fields } }).response
 
     if(response.status >= 400)
       throw new Error('HTTP request failed. status code:', response.status)
@@ -90,6 +59,7 @@ async function filePush(envName) {
     process.exit(1)
   }
 }
+
 
 async function filePull(envName) {
   const tmpName = path.resolve(homedir(), '.envry', 'links', envName)
@@ -101,7 +71,7 @@ async function filePull(envName) {
   const envFilepath = fs.readFileSync(tmpName, 'utf8').trim()
 
   try {
-    const response = await r2(`${API_URL}/pull/${envName}?token=${config.token}`).response
+    const response = await r2(`${API_URL}/pull/${envName}?token=${config.token}&currentTeam=${config.currentTeam}`).response
 
     if(response.status >= 400)
       throw new Error('HTTP request failed. status code:', response.status)
@@ -124,10 +94,6 @@ async function filePull(envName) {
   }
 }
 
-checkConfigDirectory()
-
-const config = cfg.read()
-
 
 function printGeneralUsage() {
   console.log(chalk.whiteBright.bold('\n  envry command [options]\n'))
@@ -139,12 +105,30 @@ function printGeneralUsage() {
 }
 
 
+async function listTeams() {
+  // TODO: show spinner
+
+  const response = await r2(`${API_URL}/teams?token=${config.token}&currentTeam=${config.currentTeam}`).response
+
+  // TODO: render output like this:
+  /*
+      id               email / name
+    ✔ voiceco          voiceco
+      nekoflux         reinstein.mike@gmail.com
+      dreamingbits     Dreamingbits
+  */
+  console.log('teams response:', response)
+}
+
+
 async function run() {
   if(argv.h || argv.help || subcommand === 'help')
     return printGeneralUsage()
 
-  if (!config.token)
-    await login(API_URL)
+  if (!config.token) {
+    const result = await auth(API_URL)
+    Object.assign(config, result)
+  }
 
   if (subcommand === 'link')
     fileLink(argv._[1], argv._[2])
@@ -152,6 +136,27 @@ async function run() {
     filePush(argv._[1])
   else if (subcommand === 'pull')
     filePull(argv._[1])
+  else if (subcommand === 'teams') {
+    if (!argv._[1])
+      return console.log('TODO: show teams sub-help')
+    if (argv._[1] === 'ls')
+      listTeams()
+  }
 }
+
+
+// throw an error if node version is too low
+if (nodeVersion.major < 7) {
+  error('envry requires at least version 7 of Node. Please upgrade!')
+  process.exit(1)
+}
+
+dotenv.config({ path: __dirname + '/../.env' })
+
+const API_URL = process.env.API_URL || 'https://envry.reinstein.me'
+const argv = minimist(process.argv.slice(2))
+const subcommand = argv._[0]
+
+const config = cfg.read()
 
 run()

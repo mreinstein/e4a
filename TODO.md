@@ -1,4 +1,12 @@
 * teams
+  * test auth flow (backend should create new team on new email, frontend should set currentTeam in config)
+  * implement teams ls command
+  * use currentTeam in /pull endpoint
+  * use currentTeam in /push endpoint
+  * implement add team command
+  * implement switch command
+  * implement invite member command
+
 * add examples section to printed help
 * list available env files from server
 * locally unlink files
@@ -19,13 +27,23 @@ envry lock <filepath> --field FIELD1 --field FIELD2
 ## sample invocation ideas
 
 ```bash
-λ envry group add boswell
+λ envry teams add boswell
 
-"boswell" group created
+"boswell" team created
 
-λ envry group set boswell ted@barnettlabs.com
 
-"ted@barnettlabs.com" added to group "boswell"
+λ envry teams invite boswell ted@barnettlabs.com
+
+"ted@barnettlabs.com" invited to group "boswell"
+
+
+λ envry teams ls
+
+  id               email / name
+✔ voiceco          voiceco
+  nekoflux         reinstein.mike@gmail.com
+  dreamingbits     Dreamingbits
+
 
 λ envry link myproject/.env myproject-dev
 
