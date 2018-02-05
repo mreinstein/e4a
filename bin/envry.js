@@ -105,6 +105,17 @@ function printGeneralUsage() {
 }
 
 
+function printTeamUsage() {
+  console.log(chalk.whiteBright.bold('\n  envry teams command [options]\n'))
+  console.log(chalk.dim('  Commands:\n'))
+  console.log('    add     [name]           create a new team name')
+  console.log('    invite  [team] [email]   invite an email to the team')
+  console.log('    ls                       list all teams you belong to')
+  console.log('    switch  [name]           set the current team')
+  console.log(' ')
+}
+
+
 async function listTeams() {
   // TODO: show spinner
 
@@ -138,8 +149,8 @@ async function run() {
     filePull(argv._[1])
   else if (subcommand === 'teams') {
     if (!argv._[1])
-      return console.log('TODO: show teams sub-help')
-    if (argv._[1] === 'ls')
+      printTeamUsage()
+    else if (argv._[1] === 'ls')
       listTeams()
   }
 }
