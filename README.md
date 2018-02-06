@@ -2,6 +2,8 @@
 
 keep .env files synced from the command line
 
+This is the command line client.
+
 
 ## installation
 
