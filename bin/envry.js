@@ -107,6 +107,8 @@ function printGeneralUsage() {
   console.log('    link  [filepath] [name]  link an environment file to sync')
   console.log('    pull  [name]             pull changes into a linked env file from remote')
   console.log('    push  [name]             push changes from a linked env file to remote')
+  console.log('    switch                   change the currently active team')
+  console.log('    teams                    teams subcommand')
   console.log(' ')
 }
 
