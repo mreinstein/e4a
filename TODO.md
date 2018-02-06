@@ -1,8 +1,5 @@
 * teams
-  * test auth flow (backend should create new team on new email, frontend should set currentTeam in config)
   * implement teams ls command
-  * use currentTeam in /pull endpoint
-  * use currentTeam in /push endpoint
   * implement add team command
   * implement switch command
   * implement invite member command

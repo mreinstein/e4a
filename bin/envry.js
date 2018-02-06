@@ -49,7 +49,12 @@ async function filePush(envName) {
   }
 
   try {
-    const response = await r2.post(`${API_URL}/push?token=${config.token}&currentTeam=${config.currentTeam}`, { json: { envName, fields } }).response
+    const body = {
+      envName,
+      fields,
+      teamid: config.currentTeam
+    }
+    const response = await r2.post(`${API_URL}/push?token=${config.token}&teamid=${config.currentTeam}`, { json: body }).response
 
     if(response.status >= 400)
       throw new Error('HTTP request failed. status code:', response.status)
@@ -71,7 +76,7 @@ async function filePull(envName) {
   const envFilepath = fs.readFileSync(tmpName, 'utf8').trim()
 
   try {
-    const response = await r2(`${API_URL}/pull/${envName}?token=${config.token}&currentTeam=${config.currentTeam}`).response
+    const response = await r2(`${API_URL}/pull/${envName}?token=${config.token}&teamid=${config.currentTeam}`).response
 
     if(response.status >= 400)
       throw new Error('HTTP request failed. status code:', response.status)
@@ -119,7 +124,7 @@ function printTeamUsage() {
 async function listTeams() {
   // TODO: show spinner
 
-  const response = await r2(`${API_URL}/teams?token=${config.token}&currentTeam=${config.currentTeam}`).response
+  const response = await r2(`${API_URL}/teams?token=${config.token}`).response
 
   // TODO: render output like this:
   /*
@@ -164,7 +169,7 @@ if (nodeVersion.major < 7) {
 
 dotenv.config({ path: __dirname + '/../.env' })
 
-const API_URL = process.env.API_URL || 'https://envry.reinstein.me'
+const API_URL = process.env.API_URL || 'http://localhost:4000' //'https://envry.reinstein.me'
 const argv = minimist(process.argv.slice(2))
 const subcommand = argv._[0]
 
