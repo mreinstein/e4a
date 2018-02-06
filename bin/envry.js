@@ -10,6 +10,7 @@ const homedir     = require('os').homedir
 const auth        = require(__dirname + '/../lib/auth')
 const minimist    = require('minimist')
 const nodeVersion = require('node-version')
+const ora         = require('ora')
 const path        = require('path')
 const r2          = require('r2')
 const resolve     = require('path').resolve
@@ -121,19 +122,86 @@ function printTeamUsage() {
 }
 
 
+async function createTeam(name) {
+  if(name)
+    name = name.trim()
+
+  name = name.trim()
+  if (!name) {
+    console.error('usage: envry teams add [name]')
+    return
+  }
+
+  const body = { name }
+  const response = await r2.post(`${API_URL}/teams/${config.currentTeam}?token=${config.token}`, { json: body }).response
+
+  console.log(' ')
+}
+
+
+async function inviteMember(teamName, email) {
+  if(!teamName || !email)
+    return console.error('usage: envry teams invite [team] [email]')
+
+  const body = { name: teamName, email }
+  console.log('sending:', body)
+  const response = await r2.post(`${API_URL}/teams/${config.currentTeam}/members?token=${config.token}`, { json: body }).response
+
+  console.log(' ')
+}
+
+
 async function listTeams() {
-  // TODO: show spinner
+
+  const spinner = ora({
+    text: chalk.black('Fetching teams'),
+    color: 'black'
+  }).start()
 
   const response = await r2(`${API_URL}/teams?token=${config.token}`).response
+  const myTeams = await response.json()
 
-  // TODO: render output like this:
-  /*
-      id               email / name
-    ✔ voiceco          voiceco
-      nekoflux         reinstein.mike@gmail.com
-      dreamingbits     Dreamingbits
-  */
-  console.log('teams response:', response)
+  spinner.text = ' '
+  spinner.stopAndPersist(' ')
+
+  console.log(chalk.black('  team name'))
+  myTeams.teams.forEach(function(t) {
+    const icon = (t.id === config.currentTeam) ? '✔' : ' '
+    console.log(`${icon} ${t.name}`)
+  })
+
+  console.log(' ')
+}
+
+
+async function switchTeam(name) {
+  if(name)
+    name = name.trim()
+
+  if(!name)
+    return console.error('usage: envry switch [team_name]')
+
+  const spinner = ora({
+    text: chalk.black('Fetching teams'),
+    color: 'black'
+  }).start()
+
+  const response = await r2(`${API_URL}/teams?token=${config.token}`).response
+  const myTeams = await response.json()
+
+  spinner.text = ' '
+  spinner.stopAndPersist(' ')
+
+  const current = myTeams.teams.find(function(t) {
+    return t.id === name || t.name === name
+  })
+
+  if(!current)
+    return console.error(chalk.red('> Error!') + ' Could not find membership for team ' + chalk.black('"') + chalk.whiteBright.bold(name) + chalk.black('"') + '\n')
+
+  config.currentTeam = current.id
+  cfg.merge({ currentTeam: current.id })
+  console.log(chalk.cyan('> Success!') + ' The team ' + chalk.whiteBright.bold(name) + ' is now active!\n')
 }
 
 
@@ -157,6 +225,14 @@ async function run() {
       printTeamUsage()
     else if (argv._[1] === 'ls')
       listTeams()
+    else if (argv._[1] === 'add')
+      createTeam(argv._[2])
+    else if (argv._[1] === 'switch')
+      switchTeam(argv._[2])
+    else if (argv._[1] === 'invite')
+      inviteMember(argv._[2], argv._[3])
+  } else if(subcommand === 'switch') {
+    switchTeam(argv._[1])
   }
 }
 
@@ -169,7 +245,7 @@ if (nodeVersion.major < 7) {
 
 dotenv.config({ path: __dirname + '/../.env' })
 
-const API_URL = process.env.API_URL || 'http://localhost:4000' //'https://envry.reinstein.me'
+const API_URL = process.env.API_URL || 'https://envry.reinstein.me'
 const argv = minimist(process.argv.slice(2))
 const subcommand = argv._[0]
 
