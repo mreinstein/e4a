@@ -30,13 +30,13 @@ function fileLink(file, envName) {
 async function filePush(envName) {
   const tmpName = path.resolve(homedir(), '.envry', 'links', envName)
   if (!fs.existsSync(tmpName)) {
-    console.error('ERROR:', envName, 'not linked.')
+    console.error(chalk.red('> Error! ') + envName, 'not linked.')
     process.exit(1)
   }
 
   const envFilepath = fs.readFileSync(tmpName, 'utf8').trim()
   if (!fs.existsSync(envFilepath)) {
-    console.error('ERROR:', envFilepath, 'file does not exist.')
+    console.error(chalk.red('> Error! ') + envFilepath, 'file does not exist.')
     process.exit(1)
   }
 
@@ -45,7 +45,7 @@ async function filePush(envName) {
   try {
     fields = dotenv.parse(buf)
   } catch (er) {
-    console.error('ERROR: invalid format in file', envFilepath, er.message)
+    console.error(chalk.red('> Error! ') + 'invalid format in file', envFilepath, er.message)
     process.exit(1)
   }
 
@@ -61,7 +61,7 @@ async function filePush(envName) {
       throw new Error('HTTP request failed. status code:', response.status)
 
   } catch(er) {
-    console.error('ERROR: could not sync the env file.', er.message)
+    console.error(chalk.red('> Error! ') + 'could not sync the env file.', er.message)
     process.exit(1)
   }
 }
@@ -70,7 +70,7 @@ async function filePush(envName) {
 async function filePull(envName) {
   const tmpName = path.resolve(homedir(), '.envry', 'links', envName)
   if (!fs.existsSync(tmpName)) {
-    console.error('ERROR:', envName, 'not linked.')
+    console.error(chalk.red('> Error! ') + envName, 'not linked.')
     process.exit(1)
   }
 
@@ -95,7 +95,7 @@ async function filePull(envName) {
 
     fs.writeFileSync(envFilepath, out, 'utf8')
   } catch(er) {
-    console.error('ERROR: could not retrieve the env file from remote:', er.message)
+    console.error(chalk.red('> Error!') + 'could not retrieve the env file from remote:', er.message)
     process.exit(1)
   }
 }
@@ -146,7 +146,6 @@ async function inviteMember(teamName, email) {
     return console.error('usage: envry teams invite [team] [email]')
 
   const body = { name: teamName, email }
-  console.log('sending:', body)
   const response = await r2.post(`${API_URL}/teams/${config.currentTeam}/members?token=${config.token}`, { json: body }).response
 
   console.log(' ')
@@ -216,6 +215,9 @@ async function run() {
     Object.assign(config, result)
   }
 
+  if(!argv._[1])
+    return printGeneralUsage()
+
   if (subcommand === 'link')
     fileLink(argv._[1], argv._[2])
   else if (subcommand === 'push')
@@ -235,13 +237,15 @@ async function run() {
       inviteMember(argv._[2], argv._[3])
   } else if(subcommand === 'switch') {
     switchTeam(argv._[1])
+  } else {
+    console.error(chalk.red('> Error!') + ' Invalid subcommand ' + chalk.black('"') + chalk.whiteBright.bold(argv._[1]) + chalk.black('"') + '\n')
   }
 }
 
 
 // throw an error if node version is too low
 if (nodeVersion.major < 7) {
-  error('envry requires at least version 7 of Node. Please upgrade!')
+  console.error(chalk.red('> Error! ') + 'envry requires at least version 7 of Node. Please upgrade!')
   process.exit(1)
 }
 
