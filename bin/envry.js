@@ -14,6 +14,7 @@ const ora         = require('ora')
 const path        = require('path')
 const r2          = require('r2')
 const resolve     = require('path').resolve
+const table       = require('text-table')
 
 
 // envry link myproject/.env myproject-dev
@@ -105,6 +106,7 @@ function printGeneralUsage() {
   console.log(chalk.whiteBright.bold('\n  envry command [options]\n'))
   console.log(chalk.dim('  Commands:\n'))
   console.log('    link  [filepath] [name]  link an environment file to sync')
+  console.log('    ls                       list all environment files in envry')
   console.log('    pull  [name]             pull changes into a linked env file from remote')
   console.log('    push  [name]             push changes from a linked env file to remote')
   console.log('    switch                   change the currently active team')
@@ -163,13 +165,50 @@ async function listTeams() {
   const myTeams = await response.json()
 
   spinner.text = ' '
-  spinner.stopAndPersist(' ')
+  spinner.stopAndPersist({ symbol: ' ' })
 
   console.log(chalk.black('  team name'))
   myTeams.teams.forEach(function(t) {
     const icon = (t.id === config.currentTeam) ? '✔' : ' '
     console.log(`${icon} ${t.name}`)
   })
+
+  console.log(' ')
+}
+
+
+async function listEnvs() {
+
+  const spinner = ora({
+    text: chalk.black('Fetching .env list for current team'),
+    color: 'black'
+  }).start()
+
+  const response = await r2(`${API_URL}/teams/${config.currentTeam}/list?token=${config.token}`).response
+  const myList = await response.json()
+
+  spinner.text = ' '
+  spinner.stopAndPersist({ symbol: ' ' })
+
+
+  const i = [
+    [ chalk.black('name'), chalk.black('fields'), chalk.black('linked location') ]
+  ]
+
+  for (let entry of myList) {
+    let location
+    let tmpName = path.resolve(homedir(), '.envry', 'links', entry.name)
+    if (!fs.existsSync(tmpName))
+      location = chalk.red('not linked')
+    else
+      location = chalk.white(fs.readFileSync(tmpName, 'utf8').trim())
+
+    location = location.replace(homedir(), '~')
+
+    i.push([ chalk.whiteBright(entry.name), chalk.white(entry.fields), location ])
+  }
+
+  console.log(table(i, { align: [ 'l', 'c', 'l' ] }))
 
   console.log(' ')
 }
@@ -191,7 +230,7 @@ async function switchTeam(name) {
   const myTeams = await response.json()
 
   spinner.text = ' '
-  spinner.stopAndPersist(' ')
+  spinner.stopAndPersist({ symbol: ' ' })
 
   const current = myTeams.teams.find(function(t) {
     return t.id === name || t.name === name
@@ -214,6 +253,9 @@ async function run() {
     const result = await auth(API_URL)
     Object.assign(config, result)
   }
+
+  if (subcommand === 'ls')
+    return listEnvs()
 
   if(!argv._[1])
     return printGeneralUsage()
