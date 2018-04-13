@@ -167,7 +167,7 @@ async function listTeams() {
   spinner.text = ' '
   spinner.stopAndPersist({ symbol: ' ' })
 
-  console.log(chalk.black('  team name'))
+  console.log(chalk.gray('  team name'))
   myTeams.teams.forEach(function(t) {
     const icon = (t.id === config.currentTeam) ? '✔' : ' '
     console.log(`${icon} ${t.name}`)
@@ -192,7 +192,7 @@ async function listEnvs() {
 
 
   const i = [
-    [ chalk.black('name'), chalk.black('fields'), chalk.black('linked location') ]
+    [ chalk.gray('name'), chalk.gray('fields'), chalk.gray('linked location') ]
   ]
 
   for (let entry of myList) {
