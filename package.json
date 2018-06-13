@@ -11,8 +11,8 @@
   "license": "MIT",
   "dependencies": {
     "chalk": "^2.4.1",
-    "delay": "^2.0.0",
-    "dotenv": "^5.0.1",
+    "delay": "^3.0.0",
+    "dotenv": "^6.0.0",
     "email-prompt": "^0.3.2",
     "email-validator": "^1.2.3",
     "minimist": "^1.2.0",
