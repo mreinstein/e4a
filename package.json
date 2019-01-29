@@ -10,9 +10,9 @@
   "author": "Mike Reinstein",
   "license": "MIT",
   "dependencies": {
-    "chalk": "^2.4.1",
-    "delay": "^3.0.0",
-    "dotenv": "^6.0.0",
+    "chalk": "^2.4.2",
+    "delay": "^3.1.0",
+    "dotenv": "^6.2.0",
     "email-prompt": "^0.3.2",
     "email-validator": "^1.2.3",
     "minimist": "^1.2.0",
