@@ -15,7 +15,7 @@
     "dotenv": "^6.2.0",
     "email-prompt": "^0.3.2",
     "email-validator": "^1.2.3",
-    "minimist": "^1.2.0",
+    "minimist": "^1.2.5",
     "node-version": "^1.2.0",
     "ora": "^2.1.0",
     "querystring": "^0.2.0",
